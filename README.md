@@ -2,6 +2,8 @@
 
 **🇬🇧 English** · [🇧🇷 Português](README.pt-BR.md)
 
+[![CI](https://github.com/theobarros22/fabric-anime-edition/actions/workflows/ci.yml/badge.svg)](https://github.com/theobarros22/fabric-anime-edition/actions) ![license](https://img.shields.io/badge/code-MIT-green) ![style](https://img.shields.io/badge/style-2D%20flat%20vector-orange) ![lang](https://img.shields.io/badge/docs-EN%20%7C%20PT--BR-blue) ![PRs](https://img.shields.io/badge/PRs-welcome-brightgreen)
+
 > An open, code-first factory for **2D flat-vector animated shorts** (3D-ready by design):
 > scripts → characters → voices → cuts → caption/mouth sync → editable timeline → vertical video.
 
@@ -10,6 +12,36 @@
 Born from a real production pipeline (satirical shorts set in the fictional country *Brazólia*). This repo extracts
 **only what proved itself** from that work and leaves the rest of the studio behind, so that newcomers can contribute
 without having to understand a large private engine.
+
+## Why Fabric Anime Edition is different
+
+Most "AI video" tools give you a slot machine. Most editors give you a blank timeline. Fabric gives you a **repeatable, cheap, consistent production line** for character-driven shorts:
+
+| What you get | Why it matters | Evidence |
+|---|---|---|
+| **Same character, every frame, every episode** | Characters are code (SVG), not generated images — no drifting faces, no re-rolls | `characters/personagens.js`, `media/characters/` |
+| **Deterministic frames** | `R(t)` is a pure function of time: same input ⇒ same pixels. Easy to test, diff and review | Cached vs. uncached output was identical in our benchmarks |
+| **Re-renders in seconds** | Content-hash cache renders each unique frame once | Demo: **12.7 s → 2.3 s** on re-run; on a real episode we measured −24 % cold and −87 % warm |
+| **Zero-cost start** | The demo needs no API key and no GPU | `python tools/render_episode.py examples/demo` |
+| **You can't burn money by accident** | Same input never pays twice; a short preview must be approved before the long paid job | `voice/job_estado.py` (tested) |
+| **Small enough to understand in an hour** | The whole core is **~300 lines** of readable Python/JS — no framework to learn | `engine/`, `tools/`, `voice/` |
+| **Git-native collaboration** | Everything is text (SVG, JS, JSON): diffs and pull requests are reviewable | no binary project files |
+| **Honest by design** | The README tells you what is *not* built yet; every claim has a command to check it | status table below |
+
+**Who it's for:** satire & explainer channels, indie animators who write code, agencies that need a fixed cast at volume, and AI/TTS researchers who want a real pipeline to plug a voice model into.
+
+**What it is not:** a generative video model, a drag-and-drop editor (yet), or a finished product. It is a sharp, tested core — and a place to build the rest together.
+
+## Help wanted (pick one, open an issue, ship a PR)
+
+- 🎙️ **Open-source voice backends** (Chatterbox, Qwen3-TTS…) behind one interface — needs a blind A/B benchmark
+- 🎞️ **Editable timeline** (captions, music, trims; only changed segments re-render)
+- 🧠 **Script & character assistant** (LLM suggests hooks, casts characters, human decides)
+- 👄 **Phoneme-aware lip-sync** (today: volume only)
+- 🧊 **First 3D experiment** with the same `R(t)` contract
+- 🌍 **Translations & docs** — we are bilingual (EN/PT); add yours
+
+New here? Look for issues labeled `good first issue`. Every PR needs a before/after measurement — it's the rule that keeps this fast.
 
 ## What works today (honest status)
 
