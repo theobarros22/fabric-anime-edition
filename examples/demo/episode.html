@@ -1,0 +1,27 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+@font-face{font-family:'Anton';src:url('anton.woff2') format('woff2')}
+html,body{margin:0;background:#000}svg{display:block}text{font-family:'Anton','Impact',sans-serif}
+</style></head><body><svg id="s" xmlns="http://www.w3.org/2000/svg" width="1080" height="1920" viewBox="0 0 1080 1920"></svg>
+<script src="personagens.js"></script><script src="timeline.js"></script><script>
+// Minimal episode: window.R(t) is a PURE function of time. No timers, no randomness.
+const TL=window.TL, L=TL.lines, W=1080, H=1920;
+const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;');
+const cur=t=>{let c=L[0];for(const l of L) if(t>=l.start-0.02) c=l;return c};
+const mouth=(l,t)=>(t<l.start||t>l.start+l.dur)?0:(l.env[Math.floor((t-l.start)*30)]||0);
+const blink=(t,k)=>((t*1000+k*700)%3300)<120;
+function caption(l,t){ if(t<l.start||t>l.start+l.dur+0.3) return '';
+  const words=l.txt.toUpperCase().split(' '), per=l.dur/words.length, i=Math.min(words.length-1,Math.floor((t-l.start)/per));
+  const g=words.slice(Math.floor(i/3)*3,Math.floor(i/3)*3+3).join(' ');
+  return `<text x="540" y="1380" font-size="110" text-anchor="middle" fill="#FFF4E3" stroke="#1A0F0C" stroke-width="16" stroke-linejoin="round" paint-order="stroke">${esc(g)}</text>`}
+window.R=function(t){ const l=cur(t), sp=l.v;
+  let s='<defs><linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#EDB35C"/><stop offset="1" stop-color="#F6E0AE"/></linearGradient></defs>';
+  s+=`<rect width="${W}" height="1000" fill="url(#bg)"/><rect y="1000" width="${W}" height="920" fill="#4A3228"/>`;
+  s+=`<text x="540" y="300" font-size="96" text-anchor="middle" fill="#263447">FABRIC ANIME EDITION</text><text x="540" y="370" font-size="40" text-anchor="middle" fill="#8A6B4D" letter-spacing="6">DEMO · SYNTHETIC VOICES · FICTIONAL CHARACTERS</text>`;
+  const bob=m=>m>0.25?-10*Math.abs(Math.sin(t*15)):0;
+  const mt=mouth(l,t), mb=mouth(l,t);
+  s+=busto('tito',{expr:'neutro',m:sp==='TITO'?mt:0,blink:blink(t,0)},300,1690+(sp==='TITO'?bob(mt):0),1.3);
+  s+=busto('bozo',{expr:'bravo',m:sp==='BOZO'?mb:0,blink:blink(t,1)},780,1690+(sp==='BOZO'?bob(mb):0),1.3);
+  s+=caption(l,t);
+  let fade=1; if(t<0.25) fade=t/0.25; if(t>TL.total-0.4) fade=Math.max(0,(TL.total-t)/0.4);
+  document.getElementById('s').innerHTML=s+(fade<1?`<rect width="${W}" height="${H}" fill="#000" opacity="${1-fade}"/>`:''); return true};
+</script></body></html>

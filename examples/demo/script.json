@@ -1,0 +1,25 @@
+{
+ "gap": 0.35,
+ "lead": 0.6,
+ "target_lufs": -17,
+ "lines": [
+  {
+   "id": "01",
+   "speaker": "TITO",
+   "text": "Hello! This is a demo episode of Fabric Anime Edition.",
+   "wav": "audio/01.wav"
+  },
+  {
+   "id": "02",
+   "speaker": "BOZO",
+   "text": "The voices here are synthetic beeps. Swap in any TTS.",
+   "wav": "audio/02.wav"
+  },
+  {
+   "id": "03",
+   "speaker": "TITO",
+   "text": "Characters, captions and mouth sync, all from code.",
+   "wav": "audio/03.wav"
+  }
+ ]
+}

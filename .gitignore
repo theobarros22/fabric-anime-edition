@@ -1,0 +1,9 @@
+.env*
+*.key
+build/
+.frame_cache/
+__pycache__/
+.pytest_cache/
+examples/*/out.mp4
+work/
+job-state.json
