@@ -1,0 +1,52 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Fabric Editor</title><style>
+:root{--bg:#1c1410;--card:#2a1e18;--fg:#fff4e3;--mut:#cbb79c;--acc:#e85d26;--ok:#2dbdbb}
+body{margin:0;font:15px/1.4 system-ui,Arial;background:var(--bg);color:var(--fg)}
+header{padding:14px 20px;border-bottom:1px solid #4a3228;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+h1{font-size:18px;margin:0;margin-right:auto}main{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:16px;padding:16px 20px}
+@media(max-width:900px){main{grid-template-columns:1fr}}
+.card{background:var(--card);border-radius:10px;padding:12px;margin-bottom:10px}
+.row{display:flex;gap:8px;align-items:flex-start}.who{width:84px;font-weight:700;color:var(--ok);flex:none;padding-top:6px}
+textarea{flex:1;background:#14100d;color:var(--fg);border:1px solid #4a3228;border-radius:6px;padding:6px;font:inherit;min-height:44px;resize:vertical}
+input,select{background:#14100d;color:var(--fg);border:1px solid #4a3228;border-radius:6px;padding:5px}
+button{background:var(--acc);color:#fff;border:0;border-radius:8px;padding:8px 14px;font:inherit;cursor:pointer}
+button.sec{background:#4a3228}button:disabled{opacity:.5}small{color:var(--mut)}label{display:block;margin:6px 0 2px;color:var(--mut)}
+video{width:100%;border-radius:8px;background:#000}#msg{min-height:20px;color:var(--mut)}
+</style></head><body>
+<header><h1>Fabric Editor <small>· local · 127.0.0.1</small></h1>
+<button id="save">Save</button><button class="sec" id="undo">Undo last save</button><button id="render">Save &amp; render</button></header>
+<main><section id="lines"></section>
+<aside><div class="card"><b>Background music</b><label>File</label><select id="mfile"></select>
+<label>Level vs. voice (dB, −40…0)</label><input id="mvol" type="number" step="1" min="-40" max="0" value="-18">
+<label>Ducking under voice (dB, 0…30)</label><input id="mduck" type="number" step="1" min="0" max="30" value="10">
+<small>Loudness is measured, not heard — listen before publishing.</small></div>
+<div class="card"><b>Gaps</b><label>Default gap between lines (s)</label><input id="gap" type="number" step="0.05" min="0" max="5"></div>
+<div class="card"><b>Preview</b><div id="msg"></div><video id="vid" controls playsinline></video></div></aside></main>
+<script>
+let S=null;const $=id=>document.getElementById(id);
+const H={'Content-Type':'application/json','X-Fabric':'1'};
+const say=t=>$('msg').textContent=t;
+async function load(){S=await (await fetch('/api/script')).json();
+ $('gap').value=S.gap??0.38;
+ const sel=$('mfile');sel.innerHTML='<option value="">(none)</option>'+S._files.map(f=>`<option>${f}</option>`).join('');
+ if(S.music){sel.value=S.music.file;$('mvol').value=S.music.volume_db??-18;$('mduck').value=S.music.duck_db??10}
+ $('undo').disabled=!S._undo;draw();status()}
+function draw(){const el=$('lines');el.innerHTML='';
+ S.lines.forEach((l,i)=>{const d=document.createElement('div');d.className='card';
+  d.innerHTML=`<div class="row"><div class="who">${l.speaker}</div><textarea maxlength="300"></textarea>
+  <div style="display:flex;flex-direction:column;gap:4px"><button class="sec" ${i?'':'disabled'}>↑</button><button class="sec" ${i<S.lines.length-1?'':'disabled'}>↓</button></div></div>
+  <label>Gap after this line (s) <small>empty = default</small></label><input type="number" step="0.05" min="0" max="5" style="width:90px" value="${l.gap??''}">`;
+  const ta=d.querySelector('textarea');ta.value=l.text||'';ta.oninput=()=>l.text=ta.value;
+  const [up,dn]=d.querySelectorAll('button');up.onclick=()=>{[S.lines[i-1],S.lines[i]]=[S.lines[i],S.lines[i-1]];draw()};dn.onclick=()=>{[S.lines[i+1],S.lines[i]]=[S.lines[i],S.lines[i+1]];draw()};
+  d.querySelector('input').oninput=e=>{if(e.target.value==='')delete l.gap;else l.gap=parseFloat(e.target.value)};
+  el.appendChild(d)})}
+function collect(){const o={...S};delete o._files;delete o._undo;o.gap=parseFloat($('gap').value);
+ const f=$('mfile').value;if(f)o.music={file:f,volume_db:parseFloat($('mvol').value),duck_db:parseFloat($('mduck').value)};else delete o.music;return o}
+async function save(){const r=await fetch('/api/script',{method:'POST',headers:H,body:JSON.stringify(collect())});const j=await r.json();say(j.ok?'Saved.':'Not saved: '+j.error);if(j.ok)await load();return j.ok}
+$('save').onclick=save;
+$('undo').onclick=async()=>{const j=await (await fetch('/api/undo',{method:'POST',headers:H})).json();say(j.ok?'Undone.':j.error);await load()};
+$('render').onclick=async()=>{if(!await save())return;const r=await fetch('/api/render',{method:'POST',headers:H});say(r.ok?'Rendering…':'Already rendering');poll()};
+async function status(){const j=await (await fetch('/api/status')).json();if(j.has_video&&!$('vid').src)$('vid').src='/out.mp4?'+Date.now();return j}
+async function poll(){const j=await status();if(j.state==='rendering'){say('Rendering…');setTimeout(poll,1500)}else if(j.state==='done'){say('Done. '+(j.log.split('\n').filter(x=>x.includes('lufs')).pop()||''));$('vid').src='/out.mp4?'+Date.now()}else if(j.state==='error')say('Render error: '+j.log.slice(-300))}
+load();
+</script></body></html>

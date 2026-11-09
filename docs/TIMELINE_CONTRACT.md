@@ -1,6 +1,9 @@
 # Timeline contract (R1–R13) / Contrato da timeline
 
-Status: **specification only — no editor UI exists in this repo yet.** / **Só especificação — ainda não há interface.**
+Status: **MVP implemented in `tools/editor.py`** (local web UI, edits `script.json`). Coverage / Cobertura:
+R2 ✅ (line ids) · R6 🟡 undo of last saves, no redo · R7 ✅ measured: one caption edit re-rendered 45/286 frames · R9 ✅ 127.0.0.1 + Host/CSRF guard ·
+R10 🟡 captions, order, gaps, music+ducking (no trims, no audio replacement, no new lines) · R11 ✅ loudness printed after each render · R12 🟡 mp4 only.
+R1, R3–R5, R8, R13 ❌ not done. / R1, R3–R5, R8, R13 ❌ ainda não.
 Goal: someone who did not make the episode can change captions, add background music and fix cuts without breaking it.
 
 | # | Requirement | Requisito |

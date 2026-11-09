@@ -21,6 +21,7 @@ A maioria das ferramentas de "vídeo com IA" é um caça-níquel. A maioria dos 
 |---|---|---|
 | **O mesmo personagem em todo quadro e episódio** | Personagens são código (SVG), não imagens geradas — sem rosto mudando, sem sorteio | `characters/personagens.js`, `media/characters/` |
 | **Quadros determinísticos** | `R(t)` é função pura do tempo: mesma entrada ⇒ mesmos pixels. Fácil de testar, comparar e revisar | Saída com e sem cache foi idêntica nos nossos benchmarks |
+| **Editou uma legenda → só aquele trecho re-renderiza** | O cache usa a *aparência* do quadro como chave, não a timeline inteira | Demo: editar uma fala re-renderizou **45 de 286 quadros** (etapa de render 16,0 s → 4,9 s); adicionar música re-renderizou **0** (2,8 s) |
 | **Re-render em segundos** | O cache por hash renderiza cada quadro único uma vez | Demo: **12,7 s → 2,3 s** na 2ª execução; num episódio real medimos −24 % a frio e −87 % com cache quente |
 | **Começo sem custo** | O demo não precisa de chave de API nem GPU | `python tools/render_episode.py examples/demo` |
 | **Impossível gastar dinheiro sem querer** | A mesma entrada nunca é paga duas vezes; uma prévia curta precisa ser aprovada antes do job pago longo | `voice/job_estado.py` (testado) |
@@ -55,7 +56,7 @@ Chegou agora? Procure issues com o rótulo `good first issue`. Todo PR precisa d
 | Segurança de custo em APIs pagas: nunca pagar duas vezes pela mesma entrada; prévia aprovada antes | ✅ testado | `voice/job_estado.py` |
 | Vozes além de uma API comercial (TTS aberto: Chatterbox, Qwen3-TTS) | 🧪 candidatos, **sem benchmark ainda** | [docs/ROADMAP.md](docs/ROADMAP.md) |
 | Assistente de roteiro e personagens (guiado por LLM) | 📝 desenhado, não construído | [docs/ROADMAP.md](docs/ROADMAP.md) |
-| Timeline editável (trocar legenda, pôr música, corrigir cortes) | 📝 contrato escrito, interface não construída | [docs/TIMELINE_CONTRACT.md](docs/TIMELINE_CONTRACT.md) |
+| Editor local MVP: editar legendas, reordenar falas, ajustar pausas, trilha de fundo com ducking, desfazer, re-renderizar | ✅ funciona (testado). Ainda não: cortes/aparas, trocar áudio, adicionar falas | `tools/editor.py`, [docs/TIMELINE_CONTRACT.md](docs/TIMELINE_CONTRACT.md) |
 | Personagens 3D | 📝 só um espaço reservado — nenhum 3D foi produzido ainda | `experimental/` (planejado) |
 
 **Limites que você precisa saber:** a sincronia labial segue o *volume* do áudio, não os fonemas. O loudness é
@@ -69,6 +70,10 @@ comercial (veja [LICENSE-ASSETS.md](LICENSE-ASSETS.md)).
 | ![elenco](media/characters/ELENCO_completo_2D.png) | **Fichas do elenco** — Tito, Bozo, Gengivão, Cabeça de Ovo, Nove Dedos (`media/characters/`) |
 | ![folha](media/frames/brazolia_ep1_contact_sheet.jpg) | **Quadros de um episódio real** (56 s, 1080×1920): [`media/video/brazolia_ep1_sample.mp4`](media/video/brazolia_ep1_sample.mp4) |
 
+- 🖥️ Editor local (legendas, ordem, pausas, música): `python tools/editor.py examples/demo`
+
+  ![editor](media/frames/editor_ui.png)
+
 - 🎬 Exemplo real (português, vozes de IA, sátira rotulada): `media/video/brazolia_ep1_sample.mp4`
 - 🎬 Demo reproduzível (bipes sintéticos no lugar das vozes): `media/video/demo_synthetic_voices.mp4` ← refaça você mesmo abaixo.
 
@@ -77,6 +82,7 @@ comercial (veja [LICENSE-ASSETS.md](LICENSE-ASSETS.md)).
 ```bash
 pip install -r requirements.txt && playwright install chromium   # + ffmpeg no PATH
 python tools/render_episode.py examples/demo        # → examples/demo/out.mp4
+python tools/editor.py examples/demo                # editor local → http://127.0.0.1:8777
 python tools/fichas.py                              # regenera as fichas
 pytest -q                                           # testes
 ```

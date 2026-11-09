@@ -23,8 +23,12 @@ def main():
     ep = os.path.abspath(a.episode); html = os.path.join(ep, "episode.html")
     cache = a.cache or os.path.join(ep, ".frame_cache")
     os.makedirs(a.out, exist_ok=True); os.makedirs(cache, exist_ok=True)
-    # the hash covers every source file: change HTML/timeline/characters => new hash / mudou algo => hash novo
-    srcs = [html] + sorted(os.path.join(ep, f) for f in os.listdir(ep) if f.endswith((".js", ".json")))
+    # The key = hash of CODE (episode.html, characters, fonts) + hash of the frame's DOM.
+    # timeline.js / *.json are excluded on purpose: whatever they contribute to a frame is already in its DOM,
+    # so editing one caption only re-renders the frames that changed.
+    # Chave = hash do CÓDIGO + hash do DOM do quadro. timeline/json ficam de fora de propósito: o que eles
+    # mudam já aparece no DOM, então editar uma legenda só re-renderiza os quadros afetados.
+    srcs = [html] + sorted(os.path.join(ep, f) for f in os.listdir(ep) if f.endswith((".js", ".woff2")) and f != "timeline.js")
     base = hashlib.sha1(b"".join(open(f, "rb").read() for f in srcs)).hexdigest()[:10]
     t0 = time.time(); rendered = reused = 0
     with sync_playwright() as pw:

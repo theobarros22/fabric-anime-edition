@@ -36,7 +36,7 @@ def main(ep):
         hi = np.percentile(env, 92) + 1e-9; m = np.clip(env / hi, 0, 1); m = np.where(m < 0.12, 0, m)
         lines.append(dict(n=L["id"], v=L["speaker"], txt=L.get("text", ""), start=round(t, 3), dur=round(d, 3),
                           env=[round(float(q), 2) for q in m], wav=os.path.relpath(b, ep)))
-        t += d + gap
+        t += d + L.get("gap", gap)   # optional per-line gap after this line
     total = round(t + 1.0, 2); tl = dict(lines=lines, total=total)
     json.dump(tl, open(os.path.join(ep, "timeline.json"), "w", encoding="utf-8"))
     open(os.path.join(ep, "timeline.js"), "w", encoding="utf-8").write("window.TL=" + json.dumps(tl) + ";")
