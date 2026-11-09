@@ -61,6 +61,6 @@ nove(o){const c=C.nove,e=o.expr||'neutro',m=o.m||0;let g='<g transform="scale(.6
  g+= m<0.08?`<path d="M-34 112 Q0 120 34 112" fill="none" stroke="${c.mouth}" stroke-width="11" stroke-linecap="round"/>`:`<ellipse cx="0" cy="${110+m*6}" rx="${28+m*18}" ry="${10+m*34}" fill="${c.mouth}"/>`;
  return g+'</g>'}
 };
-G.busto=function(nome,o,x,y,s){o=o||{};return `<g transform="translate(${x||0},${y||0}) scale(${s||1})">${B[nome](o)}</g>`};
+G.busto=function(nome,o,x,y,s){o=o||{};return `<g data-char="${nome}" transform="translate(${x||0},${y||0}) scale(${s||1})">${B[nome](o)}</g>`};
 G.CORES=C;
 })(typeof window!=='undefined'?window:globalThis);

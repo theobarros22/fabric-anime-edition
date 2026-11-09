@@ -1,0 +1,14 @@
+<!doctype html><meta charset=utf-8><body style="margin:0;background:#222">
+<canvas id=c width=540 height=960 style="position:absolute;left:0;top:0"></canvas>
+<svg id=o width=540 height=960 style="position:absolute;left:0;top:0"></svg>
+<script type=module>
+import * as THREE from './three.module.min.js';
+const r=new THREE.WebGLRenderer({canvas:document.getElementById('c'),antialias:true,preserveDrawingBuffer:true});r.setSize(540,960,false);
+const sc=new THREE.Scene();sc.background=new THREE.Color(0x263447);
+const cam=new THREE.PerspectiveCamera(40,540/960,0.1,50);cam.position.set(0,0.6,5);cam.lookAt(0,0,0);
+const m=new THREE.Mesh(new THREE.BoxGeometry(1.6,1.6,1.6),new THREE.MeshStandardMaterial({color:0xE85D26,roughness:.5}));sc.add(m);
+sc.add(new THREE.DirectionalLight(0xffffff,3).translateX(3).translateY(4).translateZ(5));sc.add(new THREE.AmbientLight(0xffffff,.6));
+window.R=t=>{m.rotation.y=t*1.2;m.rotation.x=0.4+0.2*Math.sin(t);m.position.y=0.3*Math.sin(t*2);r.render(sc,cam);
+ document.getElementById('o').innerHTML=`<text x="270" y="860" font-size="64" text-anchor="middle" fill="#FFF4E3" stroke="#1A0F0C" stroke-width="10" paint-order="stroke" font-family="sans-serif" font-weight="800">3D + SVG</text>`};
+window.READY=true;
+</script>

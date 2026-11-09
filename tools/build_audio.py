@@ -2,13 +2,16 @@
 
 script.json:  {"gap":0.38, "lead":0.7, "target_lufs":-17, "lines":[{"id":"01","speaker":"TITO","text":"...","wav":"audio/01.wav"}]}
 For each line: trims silence at both ends, matches loudness to target_lufs, computes a 30 fps mouth
-envelope (RMS, NOT syllable-accurate), and lays lines out one after another.
+envelope (RMS, NOT syllable-accurate), per-word times ("words": from palavras/NN.json if present, else
+estimated from the envelope, see tools/palavras.py) and lays lines out one after another.
 Outputs in the episode dir: timeline.json, timeline.js (window.TL=...), voice.wav.
 usage: python tools/build_audio.py examples/demo
 Requires: ffmpeg, numpy, soundfile.
 """
 import json, os, re, subprocess, sys
 import numpy as np, soundfile as sf
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from palavras import palavras_da_fala
 
 
 def run(*a): subprocess.run(a, check=True, capture_output=True)
@@ -34,8 +37,11 @@ def main(ep):
         x, sr = sf.read(b); d = len(x) / sr; hop = int(sr / 30)
         env = np.array([np.sqrt(np.mean(x[k:k + hop] ** 2)) for k in range(0, len(x), hop)])
         hi = np.percentile(env, 92) + 1e-9; m = np.clip(env / hi, 0, 1); m = np.where(m < 0.12, 0, m)
-        lines.append(dict(n=L["id"], v=L["speaker"], txt=L.get("text", ""), start=round(t, 3), dur=round(d, 3),
-                          env=[round(float(q), 2) for q in m], wav=os.path.relpath(b, ep)))
+        ln = dict(n=L["id"], v=L["speaker"], txt=L.get("text", ""), start=round(t, 3), dur=round(d, 3),
+                  env=[round(float(q), 2) for q in m], wav=os.path.relpath(b, ep))
+        w, origem = palavras_da_fala(ep, ln, ln["env"], d)           # tempo por palavra (relativo ao início da fala)
+        ln["words"] = [dict(w=q["w"], t0=round(t + q["t0"], 3), t1=round(t + q["t1"], 3)) for q in w]; ln["words_src"] = origem
+        lines.append(ln)
         t += d + L.get("gap", gap)   # optional per-line gap after this line
     total = round(t + 1.0, 2); tl = dict(lines=lines, total=total)
     json.dump(tl, open(os.path.join(ep, "timeline.json"), "w", encoding="utf-8"))

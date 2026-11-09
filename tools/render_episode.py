@@ -15,8 +15,11 @@ music = json.load(open(os.path.join(ep, "script.json"), encoding="utf-8")).get("
 if music:
     sys.path.insert(0, HERE); from mixmusic import mix
     audio = mix(ep, audio, os.path.join(ep, "build", "mix.wav"), music)
-subprocess.run(["ffmpeg", "-y", "-v", "error", "-framerate", str(a.fps), "-i", os.path.join(fr, "f%05d.jpg"), "-i", audio,
-                "-af", "loudnorm=I=-14:TP=-2.5:LRA=11", "-c:v", "libx264", "-preset", "veryfast", "-crf", "20", "-pix_fmt", "yuv420p",
-                "-c:a", "aac", "-b:a", "192k", "-ar", "44100", "-shortest", out], check=True)
+sys.path.insert(0, HERE); from master_audio import mestre
+os.makedirs(os.path.join(ep, "build"), exist_ok=True)
+quadros = os.path.join(ep, "build", "quadros.mp4")
+subprocess.run(["ffmpeg", "-y", "-v", "error", "-framerate", str(a.fps), "-i", os.path.join(fr, "f%05d.jpg"), "-c:v", "libx264",
+                "-preset", "veryfast", "-crf", "20", "-pix_fmt", "yuv420p", "-an", quadros], check=True)
+ok, _ = mestre(audio, out, video=quadros, I=-14.0, limit=True, say=print)   # master em 2 passadas + medida no arquivo final
 subprocess.run([py, os.path.join(HERE, "qa_audio.py"), out])
 print("ok", out)

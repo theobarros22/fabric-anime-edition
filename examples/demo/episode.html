@@ -10,7 +10,8 @@ const cur=t=>{let c=L[0];for(const l of L) if(t>=l.start-0.02) c=l;return c};
 const mouth=(l,t)=>(t<l.start||t>l.start+l.dur)?0:(l.env[Math.floor((t-l.start)*30)]||0);
 const blink=(t,k)=>((t*1000+k*700)%3300)<120;
 function caption(l,t){ if(t<l.start||t>l.start+l.dur+0.3) return '';
-  const words=l.txt.toUpperCase().split(' '), per=l.dur/words.length, i=Math.min(words.length-1,Math.floor((t-l.start)/per));
+  const words=l.txt.toUpperCase().split(' '); let i=Math.min(words.length-1,Math.floor((t-l.start)/(l.dur/words.length)));
+  if(l.words&&l.words.length===words.length){i=0;l.words.forEach((w,k)=>{if(t>=w.t0)i=k})}   // tempo real por palavra (tools/palavras.py)
   const g=words.slice(Math.floor(i/3)*3,Math.floor(i/3)*3+3).join(' ');
   return `<text x="540" y="1380" font-size="110" text-anchor="middle" fill="#FFF4E3" stroke="#1A0F0C" stroke-width="16" stroke-linejoin="round" paint-order="stroke">${esc(g)}</text>`}
 window.R=function(t){ const l=cur(t), sp=l.v;

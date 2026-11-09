@@ -104,3 +104,14 @@ Não use para imitar pessoas reais nem para produzir conteúdo político enganos
 ## Licença
 
 Código: [MIT](LICENSE). Personagens, mídias de exemplo, fontes e vozes: [LICENSE-ASSETS.md](LICENSE-ASSETS.md) (não é MIT).
+
+## Ferramentas de qualidade (novas)
+
+| Ferramenta | O que faz | Medido |
+|---|---|---|
+| `tools/master_audio.py` | master de áudio linear em 2 passadas, mede o arquivo final e baixa o limitador se o AAC estourar o pico | episódio de 52 s: −13,9 LUFS / pico −2,0 dBFS na 1ª execução (antes: 4 tentativas manuais) |
+| `tools/palavras.py` | tempo de cada palavra (ASR em `palavras/NN.json` ou estimativa pelo envelope da voz) → legenda travada na fala | estimativa ±0,1–0,2 s; só testada com áudio sintético e uma fala real, **sem referência de ASR** ainda |
+| `tools/qc.py` | gancho, folha de contato, preto, congelado, quadros repetidos, loudness | `qc.py all video.mp4` |
+| `tools/textcheck.py` | mede o SVG: texto cortado, sobreposto, em zona do celular, sobre o rosto, tempo de leitura | achou legenda dentro da faixa dos botões do celular no episódio "URGENTE" |
+
+Créditos e licenças: [THIRD_PARTY.md](THIRD_PARTY.md). Mede, não ouve nem enxerga: alguém precisa assistir e ouvir.

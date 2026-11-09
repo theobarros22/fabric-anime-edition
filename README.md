@@ -103,3 +103,14 @@ Do not use this to impersonate real people or to produce deceptive political con
 ## License
 
 Code: [MIT](LICENSE). Characters, sample media, fonts and voices: [LICENSE-ASSETS.md](LICENSE-ASSETS.md) (not MIT).
+
+## Quality tools (new)
+
+| Tool | What it does | Measured |
+|---|---|---|
+| `tools/master_audio.py` | two-pass linear audio master; measures the final file and lowers the limiter if AAC overshoots the peak | 52 s episode: −13.9 LUFS / −2.0 dBFS on the first run |
+| `tools/palavras.py` | per-word timing (ASR in `palavras/NN.json`, or an estimate from the voice envelope) → speech-locked captions | estimate ±0.1–0.2 s; tested on synthetic audio and one real line, **no ASR reference yet** |
+| `tools/qc.py` | hook, contact sheet, black, freeze, duplicate frames, loudness | `qc.py all video.mp4` |
+| `tools/textcheck.py` | measures the SVG: cut/overlapping text, phone-UI zones, text over a face, reading time | found captions inside the phone-button band in the "URGENTE" episode |
+
+Credits and licenses: [THIRD_PARTY.md](THIRD_PARTY.md). It measures; it does not listen or look: a human must watch and listen.
